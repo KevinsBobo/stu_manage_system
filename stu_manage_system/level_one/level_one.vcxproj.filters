@@ -29,5 +29,8 @@
     <ClCompile Include="stuMain.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="stuStruct.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
