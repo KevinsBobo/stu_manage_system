@@ -51,7 +51,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -79,10 +79,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="coding.h" />
+    <ClInclude Include="fileOperat.h" />
     <ClInclude Include="myStu.h" />
     <ClInclude Include="stuStruct.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="fileOperat.c" />
     <ClCompile Include="stuMain.c" />
     <ClCompile Include="stuStruct.c" />
   </ItemGroup>
