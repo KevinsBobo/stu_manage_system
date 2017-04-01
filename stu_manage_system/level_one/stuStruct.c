@@ -72,7 +72,10 @@ void saveStuPInfo(stuStruct *pStu ,
 返回值：
     无
 */
-void setStuPInfo(stuStruct *pStu , uint nSelect , uchar *szTemp , uint nLen){
+void setStuPInfo(stuStruct *pStu ,
+                 uint nSelect ,
+                 uchar *szTemp ,
+                 uint nLen){
     if(pStu == NULL){
         return;
     }
@@ -112,7 +115,7 @@ void setStuPInfo(stuStruct *pStu , uint nSelect , uchar *szTemp , uint nLen){
 返回值：
     指向结构体的指针
 */
-stuStruct *newStu(FILE *fp){
+void newStu(FILE *fp){
     // 用于存放用户输入的学号、姓名、电话
     uchar szTempInfo[3][ MAXINFOLEN ];
     // 用于存放学号、姓名、电话的长度
@@ -144,7 +147,7 @@ stuStruct *newStu(FILE *fp){
                                               (nInfoCount % ALIGNED));
     if(pStuTemp == NULL){
         printf("内存分配失败\t\n");
-        exit(1);
+        exitStu(fp);
     }
 
     // 将学号写入结构体中
@@ -159,7 +162,7 @@ stuStruct *newStu(FILE *fp){
 
     // 输入生日
     printf("请输入生日（格式为：yyyy-mm-dd）：\t\n");
-    scanf_s("%u-%u-%u" , &(pStuTemp->nYear),
+    scanf_s("%hu-%hu-%hu" , &(pStuTemp->nYear),
                        &(pStuTemp->nMonth),
                        &(pStuTemp->nDay));
 
@@ -173,5 +176,288 @@ stuStruct *newStu(FILE *fp){
     // 将结构体写入文件中
     writeFile(fp , pStuTemp);
 
-    return pStuTemp;
+    // 释放结构体空间
+    free(pStuTemp);
+}
+
+/*
+函数功能：
+    打印学生结构体信息
+参数：
+    *pStu  : 指向学生信息结构体的指针
+    nPreId : 该结构体序号
+返回值：
+    无
+*/
+void printStuInfo(stuStruct *pStu , int nPreId){
+        // 保存学号、姓名、电话的二维数组
+        uchar szStuArr[ 3 ][ MAXINFOLEN ];
+        ushort nStuArrLen[ 3 ];
+        ushort age = 0;
+        time_t nowTime;
+        struct tm *pNowTime;
+        // 保存学号、姓名、电话为普通字符串
+        saveStuPInfo(pStu , nStuArrLen , szStuArr);
+        // 获取当前时间
+        time(&nowTime);
+        pNowTime = localtime(&nowTime);
+        printf("序号：%d\t\n学号：%s\t\n姓名：%s\t\n电话：%s\t\n年龄：%d\t\nC语言成绩：%.2f\t\n\t\n" ,
+               nPreId , szStuArr[ ID ] , szStuArr[ NAME ] , szStuArr[ TEL],
+               pNowTime->tm_year + 1900 - (int)pStu->nYear, pStu->fScore);
+}
+
+/*
+函数功能：
+    通过用户的输入进行查找操作
+参数：
+    *fp : 指向数据文件的指针
+返回值：
+    无
+*/
+void findStu(FILE *fp){
+    int nSelect;
+    int nPreId = 0;
+    uchar szBuff[ MAXINFOLEN ];
+
+    printf("1.按序号查找\t\n2.按学号、姓名、电话模糊查找\t\n0.返回\t\n请输入序号：\t\n");
+    scanf("%d" , &nSelect);
+
+    while(nSelect != 0 && nSelect != 1 && nSelect != 2){
+            printf("输入有误，请重新输入：\t\n");
+            scanf("%d" , &nSelect);
+    }
+
+    if(nSelect == 1){
+        printf("请输入要查找的学生序号：\t\n");
+        scanf("%d" , &nPreId);
+
+        while(nPreId <= 0){
+            printf("输入有误，请重新输入：\t\n");
+            scanf("%d" , &nPreId);
+        }
+        echoFile(fp , nPreId);
+    }
+    else if(nSelect == 2){
+        printf("请输入要查找的内容：\t\n");
+        scanf_s("%s" , szBuff , MAXINFOLEN - 1);
+        findFile(fp , szBuff , FINDALL);
+    }
+}
+
+/*
+函数功能：
+    根据用户输入修改学生信息
+参数：
+    *fp : 数据文件指针
+返回值：
+    无
+*/
+void modifyStu(FILE *fp){
+    printf("可修改的学生列表：\t\n");
+    echoFile(fp , 0);
+
+    int nSelect;
+    printf("请输入要修改的学生信息序号（输入0则退出修改）：\t\n");
+    scanf("%d" , &nSelect);
+    
+    while(nSelect < 0){
+        printf("输入有误！请重新输入：\t\n");
+        scanf("%d" , &nSelect);
+    }
+    if(nSelect == 0){
+        return;
+    }
+
+    // 获取并打印查找到的学生信息
+    printf("修改：\t\n");
+    if(echoFile(fp , nSelect) == 0){
+        return;
+    }
+    
+    printf("1.学号\t\n2.姓名\t\n3.电话\t\n4.生日\t\n5.C语言成绩\t\n0.退出修改\t\n");
+    printf("请输入选项：\t\n");
+    scanf("%d" , &nSelect);
+    while(nSelect < 0 || nSelect > 5){
+        printf("输入有误！请重新输入：\t\n");
+        scanf("%d" , &nSelect);
+    }
+    if(nSelect == 0){
+        return;
+    }
+
+    // 开始修改
+    if(nSelect == 4){
+        // 修改生日
+        ushort nYear;
+        ushort nMonth;
+        ushort nDay;
+        printf("请输入新的生日（格式为yyyy-mm-dd）：\t\n");
+        scanf("%hu-%hu-%hu" , &nYear , &nMonth , &nDay);
+        // 将文件指针偏移到年份的位置
+        fseek(fp , (long)sizeof(ushort) * 5 , SEEK_CUR);
+        // 更新年份
+        fwrite(&nYear, sizeof(ushort), 1, fp);
+        // 将文件指针偏移到月份的位置
+        fseek(fp , (long)sizeof(ushort) , SEEK_CUR);
+        // 更新月份
+        fwrite(&nMonth , sizeof(ushort) , 1 , fp);
+
+        // 将文件指针偏移到日期的位置
+        fseek(fp , (long)sizeof(ushort) , SEEK_CUR);
+        // 更新日期
+        fwrite(&nDay , sizeof(ushort) , 1 , fp);
+    }
+    else if(nSelect == 5){
+        // 修改C语言成绩
+        float fScore;
+        printf("请输入新的C语言成绩（精确到小数点后两位）：\t\n");
+        scanf("%f" , &fScore);
+
+        // 将文件指针偏移到成绩的位置
+        fseek(fp, (long)sizeof(ushort) * 8, SEEK_CUR);
+        // 更新成绩
+        fwrite(&fScore , sizeof(float), 1, fp);
+    }
+    else{
+        // 修改学号、姓名、电话
+        resetPInfo(fp , nSelect);
+    }
+
+    // 将文件指针指向文件初始位置
+    fseek(fp , 0 , SEEK_SET);
+}
+
+/*
+函数功能：
+    重新设置学号、姓名、电话
+参数：
+    *fp    : 数据文件指针
+    nSelect: 修改选项
+返回值：
+    无
+*/
+void resetPInfo(FILE *fp , int nSelect){
+    // 修改学号、姓名、电话
+    // 从文件中读出学生信息到结构体
+    stuStruct *pStu = readFile(fp);
+    if(pStu == NULL){
+        printf("修改失败\t\n");
+        return;
+    }
+    // 将文件指针指回该结构体在文件中的起始位置
+    fseek(fp , -(long)(pStu->nStuLen), SEEK_CUR);
+
+    // 用于存放用户输入的学号、姓名、电话
+    uchar szTempInfo[3][ MAXINFOLEN ];
+    // 用于存放学号、姓名、电话的长度
+    ushort nInfoLen[ 3 ] = { 0 };
+    // 三个信息总长度
+    ushort nInfoCount = 0;
+    // 保存原来的数据为普通字符串
+    saveStuPInfo(pStu , nInfoLen , szTempInfo);
+
+    if(nSelect == 1){
+        printf("请输入新的学号：\t\n");
+        scanf("%s" , szTempInfo[ ID ]);
+    }
+    else if(nSelect == 2){
+        printf("请输入新的姓名：\t\n");
+        scanf("%s" , szTempInfo[ NAME ]);
+    }
+    else{
+        printf("请输入新的电话：\t\n");
+        scanf("%s" , szTempInfo[ TEL ]);
+    }
+    
+    // 如果数据长度没变则写入原来的位置，
+    // 否则删除原数据，重新写入文件
+    if(strlen(szTempInfo[ ID ]) == nInfoLen[ ID ] &&
+       strlen(szTempInfo[NAME]) == nInfoLen[NAME] &&
+       strlen(szTempInfo[TEL])  == nInfoLen[TEL]){
+        // 将新的数据保存到结构体中
+        // 将学号写入结构体中
+        setStuPInfo(pStu , ID , szTempInfo[ ID ] , nInfoLen[ ID ]);
+        // 将姓名写入结构体中
+        setStuPInfo(pStu , NAME , szTempInfo[ NAME ] , nInfoLen[ NAME ]);
+        // 将电话写入结构体中
+        setStuPInfo(pStu , TEL , szTempInfo[ TEL ] , nInfoLen[ TEL ]);
+        
+        // 写入前先设置文件指针
+        fseek(fp , 0 , SEEK_CUR);
+
+        // 写入文件
+        fwrite(pStu , sizeof(uchar) , pStu->nStuLen , fp);
+    }
+    else{
+
+        nInfoLen[ ID ] = strlen(szTempInfo[ ID ]);
+        nInfoLen[ NAME ] = strlen(szTempInfo[ NAME ]);
+        nInfoLen[ TEL ] = strlen(szTempInfo[ TEL ]);
+        nInfoCount = nInfoLen[ ID ] +
+                     nInfoLen[ NAME ] +
+                     nInfoLen[ TEL ];
+
+        // 申请新的学生结构体内存
+        // 其中 - (nInfoCount % ALIGNED) 是为了对齐结构体到固定字节
+        stuStruct *pStuTemp = (stuStruct *)malloc(sizeof(stuStruct)
+                                                  + nInfoCount -
+                                                  (nInfoCount % ALIGNED));
+        if(pStuTemp == NULL){
+            printf("修改失败\t\n");
+            return;
+        }
+        // 计算并存储结构体长度
+        countStuLen(pStuTemp, nInfoCount);
+        // 将旧结构体中的信息拷进新的结构体中
+        memcpy_s(pStuTemp , pStuTemp->nStuLen, pStu,
+                 (pStu->nStuLen > pStuTemp->nStuLen) ? pStuTemp->nStuLen :
+                                                       pStu->nStuLen);
+        // 计算并存储结构体长度
+        countStuLen(pStuTemp, nInfoCount);
+
+        // 将新的数据保存到结构体中
+        // 将学号写入结构体中
+        setStuPInfo(pStuTemp , ID , szTempInfo[ ID ] , nInfoLen[ ID ]);
+        // 将姓名写入结构体中
+        setStuPInfo(pStuTemp , NAME , szTempInfo[ NAME ] , nInfoLen[ NAME ]);
+        // 将电话写入结构体中
+        setStuPInfo(pStuTemp , TEL , szTempInfo[ TEL ] , nInfoLen[ TEL ]);
+
+        // 删除旧的学生信息
+        delFile(fp);
+        // 写入新的学生信息
+        writeFile(fp , pStuTemp);
+
+        free(pStuTemp);
+    }
+}
+
+/*
+函数功能：
+    根据用户输入删除指定学生信息
+参数：
+    *fp : 数据文件指针
+返回值：
+    无
+*/
+void delStu(FILE *fp){
+    printf("可删除的学生列表：\t\n");
+    echoFile(fp , 0);
+
+    int nSelect;
+    printf("请输入要删除的学生信息序号（输入0则退出删除）：\t\n");
+    scanf("%d" , &nSelect);
+    
+    if(nSelect == 0){
+        return;
+    }
+
+    // 获取并打印查找到的学生信息
+    printf("删除：\t\n");
+    if(echoFile(fp , nSelect) == 0){
+        return;
+    }
+
+    // 删除指定的学生信息
+    delFile(fp);
 }

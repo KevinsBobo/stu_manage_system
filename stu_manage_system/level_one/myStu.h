@@ -6,7 +6,7 @@
 #include <time.h>
 
 // 调试模式
-#define DEBUG
+// #define DEBUG
 // 重定向输出
 //#define REOUT
 
@@ -15,6 +15,9 @@
 
 // 学生信息结构体
 #include "stuStruct.h"
+
+// 程序入口
+#include "stuMain.h"
 
 // 文件操作
 #include "fileOperat.h"

@@ -81,6 +81,7 @@
     <ClInclude Include="coding.h" />
     <ClInclude Include="fileOperat.h" />
     <ClInclude Include="myStu.h" />
+    <ClInclude Include="stuMain.h" />
     <ClInclude Include="stuStruct.h" />
   </ItemGroup>
   <ItemGroup>

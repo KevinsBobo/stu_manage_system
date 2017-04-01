@@ -19,7 +19,16 @@ typedef unsigned long long ulong;
 #define TEL  2
 
 // 操作选项
-#define CREATE 1
-#define READ   2
-#define ECHO   3
-#define DEL    4
+#define QUIT   0  // 退出
+#define CREATE 1  // 新建
+#define ECHO   2  // 输出
+#define DEL    3  // 删除
+#define FIND   4  // 查找
+#define COUNT  5  // 统计
+#define MODIFY 6  // 修改
+#define VIEWMEM 7 // 查看存储
+#define SORTMEM 8 // 整理存储
+
+// 查找选项
+#define FINDALL 0
+#define FINDONE 1

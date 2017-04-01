@@ -67,7 +67,10 @@ void saveStuPInfo(stuStruct *pStu ,
 返回值：
     无
 */
-void setStuPInfo(stuStruct *pStu , uint nSelect , uchar *szTemp , uint nLen);
+void setStuPInfo(stuStruct *pStu ,
+                 uint nSelect ,
+                 uchar *szTemp ,
+                 uint nLen);
 
 /*
 函数功能：
@@ -78,7 +81,7 @@ void setStuPInfo(stuStruct *pStu , uint nSelect , uchar *szTemp , uint nLen);
 返回值：
     指向结构体的指针
 */
-stuStruct *newStu(FILE *fp);
+void newStu(FILE *fp);
 
 /*
 函数功能：
@@ -89,3 +92,55 @@ stuStruct *newStu(FILE *fp);
     指向在堆中的学生信息结构体的地址
 */
 stuStruct *readFile(FILE *fp);
+
+/*
+函数功能：
+    打印学生结构体信息
+参数：
+    *pStu  : 指向学生信息结构体的指针
+    nPreId : 该结构体序号
+返回值：
+    无
+*/
+void printStuInfo(stuStruct *pStu , int nPreId);
+
+/*
+函数功能：
+    通过用户的输入进行查找操作
+参数：
+    *fp : 指向数据文件的指针
+返回值：
+    无
+*/
+void findStu(FILE *fp);
+
+/*
+函数功能：
+    根据用户输入修改学生信息
+参数：
+    *fp : 数据文件指针
+返回值：
+    无
+*/
+void modifyStu(FILE *fp);
+
+/*
+函数功能：
+    重新设置学号、姓名、电话
+参数：
+    *fp   : 数据文件指针
+    nSelect: 修改选项
+返回值：
+    无
+*/
+void resetPInfo(FILE *fp, int nSelect);
+
+/*
+函数功能：
+    根据用户输入删除指定学生信息
+参数：
+    *fp : 数据文件指针
+返回值：
+    无
+*/
+void delStu(FILE *fp);
