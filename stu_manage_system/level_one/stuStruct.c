@@ -167,7 +167,7 @@ void newStu(FILE *fp){
                        &(pStuTemp->nDay));
 
     // 输入C语言成绩
-    printf("请输入C语言成绩（精确到小数点后一位）：\t\n");
+    printf("请输入C语言成绩（精确到小数点后二位）：\t\n");
     scanf_s("%f" , &(pStuTemp->fScore));
 
     // 计算并存储结构体长度

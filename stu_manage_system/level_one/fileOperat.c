@@ -17,9 +17,51 @@ void writeFile(FILE *fp , stuStruct *pStu){
         return;
     }
 
-    // 将文件指针置向文件末尾
-    fseek(fp , 0 , SEEK_END);
+    // 将文件指针置向文件起始位置
+    fseek(fp , 0 , SEEK_SET);
 
+    ushort nReadLen , isEmp, nTemp;
+    // 遍历数据块，寻找合适的数据块
+    while(fread_s(&nReadLen , sizeof(ushort) , sizeof(ushort) , 1 , fp)
+          != 0){
+        // 所读取数据块大小不够
+        if(nReadLen < pStu->nStuLen){
+            fseek(fp , (long)(nReadLen - sizeof(ushort)) , SEEK_CUR);
+            continue;
+        }
+        // 读取标志位
+        if(fread_s(&isEmp , sizeof(ushort) , sizeof(ushort) , 1 , fp) == 0){
+            break;
+        }
+        // 所读取数据块不是空块
+        if(isEmp == 0){
+            fseek(fp , (long)(nReadLen - sizeof(ushort) * 2) , SEEK_CUR);
+            continue;
+        }
+        // 空数据块大小与要写入的学生信息大小相同
+        if(nReadLen == pStu->nStuLen){
+            fseek(fp , -(long)(sizeof(ushort) * 2) , SEEK_CUR);
+            break;
+        }
+        // 空数据块大小大于要写入的学生信息大小
+        nTemp = nReadLen - pStu->nStuLen;
+
+        // 将指针移动到需要分割空数据块的位置
+        fseek(fp , (long)(nReadLen - sizeof(ushort) * 2 - nTemp) , SEEK_CUR);
+        // 给截取后的空数据块写入其大小数据
+        fwrite(&nTemp , sizeof(ushort) , 1, fp);
+        // 将指针移回该块在文件中起始位置
+        fseek(fp , -(long)(sizeof(ushort)) , SEEK_CUR);
+        // 将该数据块设置为删除状态
+        delFile(fp);
+        
+        // 将指针移回适合写入的位置
+        fseek(fp , -(long)(nReadLen - nTemp) , SEEK_CUR);
+        break;
+    }
+
+    // 重置文件指针
+    fseek(fp , 0 , SEEK_CUR);
     // 写入数据
     fwrite(pStu , sizeof(char) , pStu->nStuLen , fp);
 }
