@@ -21,12 +21,23 @@ void printStart();
 */
 void printC(char cTemp , int nNum);
 
+
 /*
 函数功能：
-    关闭文件
+    打开数据库文件
 参数：
-    *fp   : 数据文件指针
+    *fp : 指向数据文件的指针
+返回值：
+    0 正常打开，非0 打开失败
+*/
+int openStuFile(FILE **fp);
+
+/*
+函数功能：
+    关闭重定向文件
+参数：
+    无
 返回值：
     无
 */
-void exitStu(FILE *fp);
+void exitStu();

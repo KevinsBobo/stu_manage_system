@@ -8,7 +8,7 @@
 // 调试模式
 // #define DEBUG
 // 重定向输出
-//#define REOUT
+// #define REOUT
 
 // 基本数据类型别名 和 宏定义数据
 #include "coding.h"

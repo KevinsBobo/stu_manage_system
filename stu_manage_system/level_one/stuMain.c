@@ -14,68 +14,125 @@ int main(){
 #endif
 #endif
     
-    // 打开数据文件
+    // 数据文件指针
     FILE *fp = NULL;
-    if(fopen_s(&fp , "sqldata" , "r+b")){
-        printf("数据文件打开失败\t\n");
+    // 尝试打开文件，若文件不存在则新建文件
+    if(fopen_s(&fp, "sqldata" , "a+")){
+        printf("数据库文件打开失败\t\n");
+        exitStu();
+#ifndef DEBUG
+        system("pause");
+#endif
         exit(1);
     }
+    fclose(fp);
 
     printStart();
-    int nFirstSelete;
-    while(scanf_s("%d" , &nFirstSelete) != EOF){
-        switch(nFirstSelete){
+    int nFirstSelect;
+    while(scanf_s("%d" , &nFirstSelect) != EOF){
+#ifdef DEBUG
+        printf("%d\t\n\t\n" , nFirstSelect);
+#endif
+        switch(nFirstSelect){
             case QUIT:
                 // 释放空间、关闭文件
-                exitStu(fp);
-                break;
+                exitStu();
+                return 0;
             case CREATE:
                 system("cls");
                 printf("%40c新建学生信息\t\n" , ' ');
+                if(openStuFile(&fp)){
+                    return 0;
+                }
                 newStu(fp);
+                fclose(fp);
+#ifndef DEBUG
                 system("pause");
+#endif
                 break;
             case ECHO:
                 system("cls");
                 printf("%40c所有学生信息\t\n" , ' ');
+                if(openStuFile(&fp)){
+                    return 0;
+                }
                 echoFile(fp, FINDALL);
+                fclose(fp);
+#ifndef DEBUG
                 system("pause");
+#endif
                 break;
             case DEL:
                 system("cls");
                 printf("%40c删除学生信息\t\n" , ' ');
+                if(openStuFile(&fp)){
+                    return 0;
+                }
                 delStu(fp);
+                fclose(fp);
+#ifndef DEBUG
                 system("pause");
+#endif
                 break;
             case FIND:
                 system("cls");
                 printf("%40c查找学生信息\t\n" , ' ');
+                if(openStuFile(&fp)){
+                    return 0;
+                }
                 findStu(fp);
+                fclose(fp);
+#ifndef DEBUG
                 system("pause");
+#endif
                 break;
             case COUNT:
                 system("cls");
                 printf("%40c统计学生信息\t\n" , ' ');
+                if(openStuFile(&fp)){
+                    return 0;
+                }
                 countStuInfo(fp);
+                fclose(fp);
+#ifndef DEBUG
                 system("pause");
+#endif
                 break;
             case MODIFY:
                 system("cls");
                 printf("%40c修改学生信息\t\n" , ' ');
+                if(openStuFile(&fp)){
+                    return 0;
+                }
                 modifyStu(fp);
+                fclose(fp);
+#ifndef DEBUG
                 system("pause");
+#endif
                 break;
             case VIEWMEM:
                 system("cls");
                 printf("%40c查看存储情况\t\n" , ' ');
+                if(openStuFile(&fp)){
+                    return 0;
+                }
                 echoMem(fp);
+                fclose(fp);
+#ifndef DEBUG
                 system("pause");
+#endif
                 break;
             case SORTMEM:
                 system("cls");
                 printf("%40c碎片整理\t\n" , ' ');
+                if(openStuFile(&fp)){
+                    return 0;
+                }
                 sortMem(fp);
+                fclose(fp);
+#ifndef DEBUG
                 system("pause");
+#endif
                 break;
             default:
                 break;
@@ -84,7 +141,7 @@ int main(){
     }
 
     // 释放空间、关闭文件
-    exitStu(fp);
+    exitStu();
     return 0;
 }
 
@@ -133,17 +190,37 @@ void printC(char cTemp , int nNum){
 
 /*
 函数功能：
+    打开数据库文件
+参数：
+    *fp : 指向数据文件的指针
+返回值：
+    0 正常打开，非0 打开失败
+*/
+int openStuFile(FILE **fp){
+    if(fopen_s(fp , "sqldata" , "r+b")){
+        printf("数据文件打开失败\t\n");
+#ifndef DEBUG
+        system("pause");
+#endif
+        return 1;
+    }
+    return 0;
+}
+
+/*
+函数功能：
     关闭文件
 参数：
-    *fp   : 数据文件指针
+    无
 返回值：
     无
 */
-void exitStu(FILE *fp){
+void exitStu(){
     // 关闭文件
-    fclose(fp);
+#ifdef DEBUG
     fclose(stdin);
 #ifdef REOUT
     fclose(stdout);
+#endif
 #endif
 }
