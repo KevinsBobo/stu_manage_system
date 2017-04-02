@@ -186,6 +186,7 @@ void newStu(FILE *fp){
     while((pStuTemp->nYear < 1990 || pStuTemp->nYear > 2017) ||
           (pStuTemp->nMonth < 1 || pStuTemp->nMonth > 12) ||
           (pStuTemp->nDay < 1 || pStuTemp->nDay   > 31)){
+        fflush(stdin);
         printf(" 输入有误，请重新输入（格式为：yyyy-mm-dd）：\t\n");
         scanf_s("%hu-%hu-%hu" , &(pStuTemp->nYear),
                            &(pStuTemp->nMonth),
@@ -204,6 +205,7 @@ void newStu(FILE *fp){
 #endif
     // 输入检查
     while(pStuTemp->fScore < 0.0 || pStuTemp->fScore > 100.0){
+        fflush(stdin);
         printf(" 输入有误，请重新输入：\t\n");
         scanf_s("%f" , &(pStuTemp->fScore));
 #ifdef DEBUG
@@ -329,6 +331,7 @@ void modifyStu(FILE *fp){
 #endif
     
     while(nSelect < 0){
+        fflush(stdin);
         printf(" 输入有误！请重新输入：\t\n");
         scanf("%d" , &nSelect);
 #ifdef DEBUG
@@ -355,6 +358,7 @@ void modifyStu(FILE *fp){
         printf("%d\t\n\t\n" , nSelect);
 #endif
     while(nSelect < 0 || nSelect > 5){
+        fflush(stdin);
         printf(" 输入有误！请重新输入：\t\n");
         scanf("%d" , &nSelect);
 #ifdef DEBUG
@@ -380,6 +384,7 @@ void modifyStu(FILE *fp){
         while((nYear < 1990 || nYear > 2017) ||
               (nMonth < 1 || nMonth > 12) ||
               (nDay < 1 || nDay   > 31)){
+            fflush(stdin);
             printf(" 输入有误，请重新输入（格式为：yyyy-mm-dd）：\t\n");
             scanf("%hu-%hu-%hu" , &nYear , &nMonth , &nDay);
 #ifdef DEBUG
@@ -411,6 +416,7 @@ void modifyStu(FILE *fp){
 #endif
         // 输入检查
         while(fScore < 0.0 || fScore > 100.0){
+            fflush(stdin);
             printf(" 输入有误，请重新输入：\t\n");
             scanf("%f" , &fScore);
 #ifdef DEBUG
