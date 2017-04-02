@@ -123,6 +123,7 @@ void newStu(FILE *fp){
     // 三个信息总长度
     ushort nInfoCount = 0;
 
+    printC('-' , 110);
     // 要求输入学号、姓名、电话
     printf(" 请输入学号：\t\n");
     scanf_s("%s" , szTempInfo[ID], MAXINFOLEN - 1 );
@@ -165,10 +166,23 @@ void newStu(FILE *fp){
     scanf_s("%hu-%hu-%hu" , &(pStuTemp->nYear),
                        &(pStuTemp->nMonth),
                        &(pStuTemp->nDay));
-
+    // 输入检查
+    while((pStuTemp->nYear < 1990 || pStuTemp->nYear > 2017) ||
+          (pStuTemp->nMonth < 1 || pStuTemp->nMonth > 12) ||
+          (pStuTemp->nDay < 1 || pStuTemp->nDay   > 31)){
+        printf(" 输入有误，请重新输入（格式为：yyyy-mm-dd）：\t\n");
+        scanf_s("%hu-%hu-%hu" , &(pStuTemp->nYear),
+                           &(pStuTemp->nMonth),
+                           &(pStuTemp->nDay));
+    }
     // 输入C语言成绩
     printf(" 请输入C语言成绩（精确到小数点后二位）：\t\n");
     scanf_s("%f" , &(pStuTemp->fScore));
+    // 输入检查
+    while(pStuTemp->fScore < 0.0 || pStuTemp->fScore > 100.0){
+        printf(" 输入有误，请重新输入：\t\n");
+        scanf_s("%f" , &(pStuTemp->fScore));
+    }
 
     // 计算并存储结构体长度
     countStuLen(pStuTemp, nInfoCount);
@@ -305,6 +319,13 @@ void modifyStu(FILE *fp){
         ushort nDay;
         printf(" 请输入新的生日（格式为yyyy-mm-dd）：\t\n");
         scanf("%hu-%hu-%hu" , &nYear , &nMonth , &nDay);
+        // 输入检查
+        while((nYear < 1990 || nYear > 2017) ||
+              (nMonth < 1 || nMonth > 12) ||
+              (nDay < 1 || nDay   > 31)){
+            printf(" 输入有误，请重新输入（格式为：yyyy-mm-dd）：\t\n");
+            scanf("%hu-%hu-%hu" , &nYear , &nMonth , &nDay);
+        }
         // 将文件指针偏移到年份的位置
         fseek(fp , (long)sizeof(ushort) * 5 , SEEK_CUR);
         // 更新年份
@@ -325,6 +346,11 @@ void modifyStu(FILE *fp){
         float fScore;
         printf(" 请输入新的C语言成绩（精确到小数点后两位）：\t\n");
         scanf("%f" , &fScore);
+        // 输入检查
+        while(fScore < 0.0 || fScore > 100.0){
+            printf(" 输入有误，请重新输入：\t\n");
+            scanf("%f" , &fScore);
+        }
 
         // 将文件指针偏移到成绩的位置
         fseek(fp, (long)sizeof(ushort) * 8, SEEK_CUR);
