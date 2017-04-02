@@ -152,6 +152,7 @@ int echoFile(FILE *fp, int nPreId){
     stuStruct *pStu;
     // 序号
     int nId = 1;
+    printC('-' , 110);
     // 循环打印
     while((pStu = readFile(fp)) != NULL){
         if(pStu->isDel == 0xFFFF){
@@ -172,6 +173,8 @@ int echoFile(FILE *fp, int nPreId){
         // 释放空间
         free(pStu);
     }
+    printC('-' , 110);
+    
     // 循环完成后 nId 如果没有变化则说明文件中没有学生信息
     if(nId == 1){
         printf("文件中没有任何学生信息\t\n");
@@ -256,7 +259,7 @@ int findFile(FILE *fp , uchar *szBuff, int nSelect){
 
     // 检查是否找到
     if(isFind == 0){
-        printf("没有找到指定的学生信息！");
+        printf(" 没有找到指定的学生信息！");
         return 0;
     }
     else{
@@ -306,6 +309,7 @@ void countStuInfo(FILE *fp){
         fCouScore += (double)(pStu->fScore);
         ++nCount;
     }
+    printC('-' , 110);
     // 循环完成后 nCount 如果没有变化则说明文件中没有学生信息
     if(nCount == 0){
         printf("文件中没有任何学生信息\t\n");
@@ -313,9 +317,10 @@ void countStuInfo(FILE *fp){
     else{
         // 更新平均分
         fAveScore = fCouScore / (double)nCount;
-        printf("一共有：%d 个学生\t\n最高分：%.2f分\t\n最低分：%.2f分\t\n平均分：%.2lf分\t\n总分：%.2lf分\t\n",
-               nCount, fMaxScore, fMinScore, fAveScore , fCouScore);
+        printf("%40c一共有：%d 个学生\t\n%40c最高分：%6.2f分\t\n%40c最低分：%6.2f分\t\n%40c平均分：%6.2lf分\t\n%40c总分  ：%6.2lf分\t\n",
+               ' ', nCount,' ', fMaxScore,' ', fMinScore,' ', fAveScore ,' ', fCouScore);
     }
+    printC('-' , 110);
     
     // 将文件指针指向文件头
     fseek(fp , 0 , SEEK_SET);
@@ -341,18 +346,22 @@ void echoMem(FILE *fp){
     ushort nMem = 0 , nTemp = 0;
     int isEmp = 0;
     long long nNum = 1;
+    printf(" 每个数据块（■ / □）大小为4字节：\t\n");
+    printC('-' , 110);
     // 循环读取存储块大小
     while(fread_s(&nMem, sizeof(ushort), sizeof(ushort), 1, fp)
           != 0){
         // 检查此块是否被删除
         fread_s(&nTemp , sizeof(ushort) , sizeof(ushort), 1, fp);
         isEmp = (nTemp == 0) ? 0 : 1;
-        printMem(nMem , isEmp, &nNum);
+        // 打印
+        printMem(nMem / ALIGNED , isEmp, &nNum);
 
         // 将文件指针指向下一块
         fseek(fp , (long)(nMem - sizeof(ushort) * 2) , SEEK_CUR);
     }
     printf("\t\n");
+    printC('-' , 110);
 }
 
 /*
@@ -371,12 +380,100 @@ void printMem(ushort nMem , int isEmp, long long *nNum){
     }
     char cUsed[] = "■";
     char cFree[] = "□";
+    if(*nNum == 1){
+        printf(" ");
+    }
     while(nMem > 0){
         printf("%s" , (isEmp == 0) ? cUsed : cFree);
-        if(*nNum % 4 == 0 && *nNum % 48 != 0){
+        if(*nNum % 48 == 0){
+            printf("\t\n ");
+        }
+        else if(*nNum % 4 == 0){
             printf(" ");
         }
         --nMem;
         ++(*nNum);
     }
+}
+
+/*
+函数功能：
+    碎片整理
+参数：
+    *fp : 数据文件指针
+返回值：
+    无
+*/
+void sortMem(FILE *fp){
+    if(fp == NULL){
+        return;
+    }
+
+    // 打印碎片整理前的存储情况
+    printf(" 碎片整理前：\t\n");
+    printC('-' , 110);
+    echoMem(fp);
+
+    // 开始碎片整理
+    // 将文件指针指向文件初始位置
+    fseek(fp , 0 , SEEK_SET);
+
+    ushort nMem[ 2 ] = { 0 } , nIsEmp[ 2 ] = { 0 };
+    stuStruct *pStu[ 2 ] = { NULL };
+    int i = 0;
+    // 循环读取存储块大小
+    while(fread_s(nMem + i, sizeof(ushort), sizeof(ushort), 1, fp)
+          != 0){
+        // 检查此块是否被删除
+        fread_s(nIsEmp + i, sizeof(ushort) , sizeof(ushort), 1, fp);
+
+        // 当获取到的第一个数据块不为空，指针向后移动
+        if(nIsEmp[ 0 ] == 0){
+            // 将文件指针指向下一块
+            fseek(fp , (long)(nMem[0] - sizeof(ushort) * 2) , SEEK_CUR);
+            i = 0;
+            continue;
+        }
+
+        // 偏移指针到结构体在文件中的起始位置
+        fseek(fp , -(long)(sizeof(ushort) * 2) , SEEK_CUR);
+        // 获取数据块内容到结构体
+        pStu[ i ] = readFile(fp);
+
+        // 检查现在获得了几块内存
+        if(i == 0){
+            ++i;
+            continue;
+        }
+
+        // 获取了第二块内存之后
+        // 将指针偏移回第一块数据在文件中的起始位置
+        fseek(fp , -(long)(nMem[ 0 ] + nMem[ 1 ]) , SEEK_CUR);
+        if(pStu[ 1 ]->isDel == 0){
+            // 获取到的第二块内存不为空
+            // 交换两块数据在文件中的位置
+            fwrite(pStu[ 1 ] , pStu[ 1 ]->nStuLen , 1 , fp);
+            fwrite(pStu[ 0 ] , pStu[ 0 ]->nStuLen , 1 , fp);
+            // 将文件指针移回交换后的空数据块起始位置
+            fseek(fp , -(long)(pStu[ 0 ]->nStuLen), SEEK_CUR);
+        }
+        else if(pStu[ 1 ]->isDel == 0xFFFF){
+            // 获取到的第二块内存为空
+            // 合并两块空数据块
+            ushort nTemp = nMem[ 0 ] + nMem[ 1 ];
+            fwrite(&nTemp, sizeof(ushort), 1, fp);
+            // 将文件指针移回合并后的空数据块的起始位置
+            fseek(fp , -(long)(sizeof(ushort)) , SEEK_CUR);
+        }
+        i = 0;
+    }
+
+    // 释放内存
+    free(pStu[ 0 ]);
+    free(pStu[ 1 ]);
+    // 打印碎片整理后的存储情况
+    printf("\t\n");
+    printf(" 碎片整理后：\t\n");
+    printC('-' , 110);
+    echoMem(fp);
 }

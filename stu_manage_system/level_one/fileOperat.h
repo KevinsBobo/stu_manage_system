@@ -91,3 +91,13 @@ void echoMem(FILE *fp);
     无
 */
 void printMem(ushort nMem , int isEmp, long long *nNum);
+
+/*
+函数功能：
+    碎片整理
+参数：
+    *fp : 数据文件指针
+返回值：
+    无
+*/
+void sortMem(FILE *fp);
