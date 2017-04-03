@@ -235,19 +235,13 @@ int findFile(FILE *fp , uchar *szBuff, int nSelect){
         // 保存学号、姓名、电话为普通字符串
         saveStuPInfo(pStu , nStuArrLen , szStuArr);
         // 判断当前学生信息是否为要查找的学生信息
-        if(strstr(szStuArr[ ID ] , szBuff) != NULL ||
-           strstr(szStuArr[ NAME ] , szBuff) != NULL ||
-           strstr(szStuArr[ TEL ] , szBuff) != NULL){
+        if(strstr(szStuArr[ ID ] , szBuff) != NULL && nSelect == 2 ||
+           strstr(szStuArr[ NAME ] , szBuff) != NULL && nSelect == 3||
+           strstr(szStuArr[ TEL ] , szBuff) != NULL && nSelect == 4){
             // 打印
             printStuInfo(pStu , nId);
             // 将是否找到标志位置为已找到
             isFind = 1;
-            // 如果指定了查找第一个匹配到的信息则结束查找，返回函数
-            if(nSelect == FINDONE){
-                // 将文件指针指向结构体在文件中的起始位置
-                fseek(fp , -(long)(pStu->nStuLen) , SEEK_CUR);
-                return 1;
-            }
         }
         ++nId;
         // 释放空间

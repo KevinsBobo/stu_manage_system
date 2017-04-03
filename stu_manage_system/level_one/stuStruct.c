@@ -266,7 +266,7 @@ void findStu(FILE *fp){
     uchar szBuff[ MAXINFOLEN ];
 
     printC('-' , 110);
-    printf("%40c1.按序号查找\t\n%40c2.按学号、姓名、电话模糊查找\t\n%40c0.返回\t\n", ' ', ' ', ' ');
+    printf("%40c1.按序号查找\t\n%40c2.按学号模糊查找\t\n%40c3.按姓名模糊查找\t\n%40c4.按电话模糊查找\t\n%40c0.返回\t\n", ' ', ' ', ' ', ' ', ' ');
     printC('-' , 110);
     printf(" 请输入序号：\t\n");
     scanf("%d" , &nSelect);
@@ -274,7 +274,7 @@ void findStu(FILE *fp){
         printf("%d\t\n\t\n" , nSelect);
 #endif
 
-    while(nSelect != 0 && nSelect != 1 && nSelect != 2){
+    while(nSelect < 0 || nSelect > 4){
             printf(" 输入有误，请重新输入：\t\n");
             scanf("%d" , &nSelect);
 #ifdef DEBUG
@@ -298,7 +298,7 @@ void findStu(FILE *fp){
         }
         echoFile(fp , nPreId);
     }
-    else if(nSelect == 2){
+    else{
         printf(" 请输入要查找的内容：\t\n");
         scanf_s("%s" , szBuff , MAXINFOLEN - 1);
 #ifdef DEBUG
@@ -306,7 +306,7 @@ void findStu(FILE *fp){
 #endif
         
         printC('-' , 110);
-        findFile(fp , szBuff , FINDALL);
+        findFile(fp , szBuff , nSelect);
         printC('-' , 110);
     }
 }
