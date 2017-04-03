@@ -183,7 +183,7 @@ void newStu(FILE *fp){
                                        pStuTemp->nDay);
 #endif
     // 输入检查
-    while((pStuTemp->nYear < 1990 || pStuTemp->nYear > 2017) ||
+    while((pStuTemp->nYear < 1900 || pStuTemp->nYear > 2017) ||
           (pStuTemp->nMonth < 1 || pStuTemp->nMonth > 12) ||
           (pStuTemp->nDay < 1 || pStuTemp->nDay   > 31)){
         fflush(stdin);
@@ -381,7 +381,7 @@ void modifyStu(FILE *fp){
         printf("%hu-%hu-%hu\t\n\t\n" , nYear, nMonth, nDay);
 #endif
         // 输入检查
-        while((nYear < 1990 || nYear > 2017) ||
+        while((nYear < 1900 || nYear > 2017) ||
               (nMonth < 1 || nMonth > 12) ||
               (nDay < 1 || nDay   > 31)){
             fflush(stdin);
@@ -585,5 +585,6 @@ void delStu(FILE *fp){
 
     // 删除指定的学生信息
     delFile(fp);
+    sortMemJustDel(fp);
     printf(" 删除成功！\t\n");
 }

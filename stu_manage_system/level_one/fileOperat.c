@@ -466,14 +466,83 @@ void sortMem(FILE *fp){
             fseek(fp , -(long)(sizeof(ushort)) , SEEK_CUR);
         }
         i = 0;
+    
+        // 释放内存
+        free(pStu[ 0 ]);
+        pStu[ 0 ] = pStu[ 1 ];
     }
-
-    // 释放内存
-    free(pStu[ 0 ]);
-    free(pStu[ 1 ]);
     // 打印碎片整理后的存储情况
     printf("\t\n");
     printf(" 碎片整理后：\t\n");
     printC('-' , 110);
     echoMem(fp);
+}
+
+/*
+函数功能：
+    整理被删除的碎片
+参数：
+    *fp : 数据文件指针
+返回值：
+    无
+*/
+void sortMemJustDel(FILE *fp){
+    if(fp == NULL){
+        return;
+    }
+
+    // 开始碎片整理
+    // 将文件指针指向文件初始位置
+    fseek(fp , 0 , SEEK_SET);
+
+    ushort nMem[ 2 ] = { 0 } , nIsEmp[ 2 ] = { 0 };
+    stuStruct *pStu[ 2 ] = { NULL };
+    int i = 0;
+    // 循环读取存储块大小
+    while(fread_s(nMem + i, sizeof(ushort), sizeof(ushort), 1, fp)
+          != 0){
+        // 检查此块是否被删除
+        fread_s(nIsEmp + i, sizeof(ushort) , sizeof(ushort), 1, fp);
+
+        // 当获取到的第一个数据块不为空，指针向后移动
+        if(nIsEmp[ 0 ] == 0){
+            // 将文件指针指向下一块
+            fseek(fp , (long)(nMem[0] - sizeof(ushort) * 2) , SEEK_CUR);
+            i = 0;
+            continue;
+        }
+
+        // 偏移指针到结构体在文件中的起始位置
+        fseek(fp , -(long)(sizeof(ushort) * 2) , SEEK_CUR);
+        // 获取数据块内容到结构体
+        pStu[ i ] = readFile(fp);
+
+        // 检查现在获得了几块内存
+        if(i == 0){
+            ++i;
+            continue;
+        }
+
+        // 获取了第二块内存之后
+        // 将指针偏移回第一块数据在文件中的起始位置
+        fseek(fp , -(long)(nMem[ 0 ] + nMem[ 1 ]) , SEEK_CUR);
+        if(pStu[ 1 ]->isDel == 0){
+            // 获取到的第二块内存不为空
+            // 将文件指针偏移到第二块数据起始位置
+            fseek(fp , (long)(pStu[ 0 ]->nStuLen), SEEK_CUR);
+        }
+        else if(pStu[ 1 ]->isDel == 0xFFFF){
+            // 获取到的第二块内存为空
+            // 合并两块空数据块
+            ushort nTemp = nMem[ 0 ] + nMem[ 1 ];
+            fwrite(&nTemp, sizeof(ushort), 1, fp);
+            // 将文件指针移回合并后的空数据块的起始位置
+            fseek(fp , -(long)(sizeof(ushort)) , SEEK_CUR);
+        }
+        i = 0;
+
+        // 释放内存
+        free(pStu[ 0 ]);
+        pStu[ 0 ] = pStu[ 1 ];
+    }
 }
