@@ -465,6 +465,9 @@ void sortMem(FILE *fp){
         free(pStu[ 0 ]);
         pStu[ 0 ] = pStu[ 1 ];
     }
+    // 释放内存
+    free(pStu[ 0 ]);
+    free(pStu[ 1 ]);
     // 打印碎片整理后的存储情况
     printf("\t\n");
     printf(" 碎片整理后：\t\n");
@@ -539,4 +542,7 @@ void sortMemJustDel(FILE *fp){
         free(pStu[ 0 ]);
         pStu[ 0 ] = pStu[ 1 ];
     }
+    // 释放内存
+    free(pStu[ 0 ]);
+    free(pStu[ 1 ]);
 }
