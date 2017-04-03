@@ -11,7 +11,7 @@ typedef unsigned long long ulong;
 #define ALIGNED (sizeof(short) * 2)
 
 // 可变长信息最大长度
-#define MAXINFOLEN 51
+#define MAXINFOLEN 101
 
 // 学号、姓名、电话下标别名
 #define ID   0

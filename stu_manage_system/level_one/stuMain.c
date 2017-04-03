@@ -30,6 +30,7 @@ int main(){
     printStart();
     int nFirstSelect;
     while(scanf_s("%d" , &nFirstSelect) != EOF){
+        fflush(stdin);
 #ifdef DEBUG
         printf("%d\t\n\t\n" , nFirstSelect);
 #endif
